@@ -2,24 +2,35 @@
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
   background-color: #242424;
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  margin: 0;
 }
-
+body {
+  margin: 0;
+  display: flex; /* Flexbox para layout */
+  justify-content: center; /* Centraliza horizontalmente */
+  align-items: flex-start; /* Fixa o conteúdo no topo */
+  min-width: 320px;
+  min-height: 100vh; /* Garante que o body ocupe toda a altura da tela */background-color: #443c3c; /* Cor de fundo */
+  box-sizing: border-box; /* Inclui padding e border no cálculo do tamanho */}
+  /* incluir para aplicar no id da div principal, a div root */
+  #root {
+  width: 100%; /* Largura total do root */
+  max-width: 900px; /* Define uma largura máxima para o conteúdo */background-color: white; /* Cor de fundo do conteúdo */
+  padding: 16px; /* Espaçamento interno */
+  border-radius: 8px; /* Bordas arredondadas */
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Sombra para destacar o conteúdo */box-sizing: border-box; /* Inclui padding no cálculo do tamanho */}
 a {
   font-weight: 500;
   color: #646cff;
   text-decoration: inherit;
 }
+
 a:hover {
   color: #535bf2;
 }
@@ -48,9 +59,11 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
+
 button:hover {
   border-color: #646cff;
 }
+
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
@@ -61,9 +74,11 @@ button:focus-visible {
     color: #213547;
     background-color: #ffffff;
   }
+
   a:hover {
     color: #747bff;
   }
+
   button {
     background-color: #f9f9f9;
   }

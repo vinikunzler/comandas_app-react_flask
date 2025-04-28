@@ -64,7 +64,9 @@ const FuncionarioForm = () => {
         </Typography>
       </Toolbar>
 
-      <Box sx={{ backgroundColor: "white", padding: 2, borderRadius: 3, mb: 2 }}>
+      <Box
+        sx={{ backgroundColor: "white", padding: 2, borderRadius: 3, mb: 2 }}
+      >
         <TextField
           label="Nome"
           fullWidth
@@ -74,27 +76,33 @@ const FuncionarioForm = () => {
           helperText={errors.nome?.message}
         />
 
-        {/* CPF com formatação manual */}
+        {/* CPF com máscara */}
         <Controller
           name="cpf"
           control={control}
           defaultValue=""
-          rules={{
-            required: "CPF é obrigatório",
-            pattern: {
-              value: /^\d{3}\.\d{3}\.\d{3}-\d{2}$/,
-              message: "CPF inválido",
-            },
-          }}
+          rules={{ required: "CPF é obrigatório" }}
           render={({ field }) => (
             <TextField
               {...field}
               label="CPF"
               fullWidth
               margin="normal"
-              onChange={(e) => field.onChange(formatCPF(e.target.value))}
               error={!!errors.cpf}
               helperText={errors.cpf?.message}
+              InputProps={{
+                // Define o IMaskInputWrapper como o componente de entrada
+                inputComponent: IMaskInputWrapper,
+                inputProps: {
+                  mask: "000.000.000-00",
+                  // O regex [0-9] aceita apenas números de 0 a 9
+                  definitions: {
+                    0: /[0-9]/,
+                  },
+                  // Retorna apenas os números no valor
+                  unmask: true,
+                },
+              }}
             />
           )}
         />
