@@ -1,16 +1,25 @@
-import React, { forwardRef } from "react";
+// src/components/IMaskInputWrapper.jsx
+import React from "react";
 import { IMaskInput } from "react-imask";
-// Componente Wrapper para lidar com a ref e propriedades
-const IMaskInputWrapper = forwardRef(function IMaskInputWrapper(props, ref) {
-  const { onChange, ...other } = props;
+
+const IMaskInputWrapper = React.forwardRef(function IMaskInputWrapper(
+  props,
+  ref
+) {
+  const { onChange, onBlur, ...other } = props;
+
   return (
     <IMaskInput
       {...other}
-      // Passa a ref corretamente para o IMaskInput
       inputRef={ref}
-      // Atualiza o valor no react-hook-form usando o onChange
-      // O onAccept é chamado quando o valor é aceito, então chamamos o onChange com o novo valoronAccept={(value) => onChange({ target: { value } })}
+      // Aceita o valor e envia para o RHF
+      onAccept={(value) => {
+        onChange(value);
+      }}
+      onBlur={onBlur}
+      overwrite
     />
   );
 });
+
 export default IMaskInputWrapper;
