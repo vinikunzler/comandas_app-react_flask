@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from settings import API_ENDPOINT_FUNCIONARIO
 from funcoes import Funcoes
+import bcrypt
 
 bp_funcionario = Blueprint('funcionario', __name__, url_prefix="/api/funcionario") 
 # --- Rotas da API do Backend (que serão consumidas pelo React) ---
@@ -36,8 +37,12 @@ def create_funcionario():
     required_fields = ['nome', 'matricula', 'cpf', 'senha', 'grupo', 'telefone']
     if not all(field in data for field in required_fields):
         return jsonify({"error": f"Campos obrigatórios faltando: {required_fields}"}), 400
+    # gera o hash da senha usando bcrypt
+    senha = data['senha'].encode('utf-8')
+    hashed = bcrypt.hashpw(senha, bcrypt.gensalt())
+    data['senha'] = hashed.decode('utf-8')
     # chama a função para fazer a requisição à API externa
-    response_data, status_code = Funcoes.make_api_request('post', API_ENDPOINT_FUNCIONARIO, data=data)# retorna o json da resposta da API externa
+    response_data, status_code = Funcoes.make_api_request('post', API_ENDPOINT_FUNCIONARIO, data=data)
     return jsonify(response_data), status_code
 
 # Rota para Atualizar um Funcionário existente (PUT)
@@ -49,11 +54,21 @@ def update_funcionario():
     # obtém o corpo da requisição JSON
     data = request.get_json()
     # validação básica para ver se os campos foram informados no json
-    required_fields = ['id_funcionario', 'nome', 'matricula', 'cpf', 'senha', 'grupo', 'telefone']
+    required_fields = ['id_funcionario', 'nome', 'matricula', 'cpf', 'grupo', 'telefone']
     if not all(field in data for field in required_fields):
         return jsonify({"error": f"Campos obrigatórios faltando: {required_fields}"}), 400
+
+    # Se o campo senha foi preenchido, atualiza o hash, senão remove do payload
+    senha = data.get('senha')
+    if senha:
+        senha = senha.encode('utf-8')
+        hashed = bcrypt.hashpw(senha, bcrypt.gensalt())
+        data['senha'] = hashed.decode('utf-8')
+    else:
+        data.pop('senha', None)
+
     # chama a função para fazer a requisição à API externa
-    response_data, status_code = Funcoes.make_api_request('put', f"{API_ENDPOINT_FUNCIONARIO}{data.get('id_funcionario')}", data=data)# retorna o json da resposta da API externa
+    response_data, status_code = Funcoes.make_api_request('put', f"{API_ENDPOINT_FUNCIONARIO}{data.get('id_funcionario')}", data=data)
     return jsonify(response_data), status_code
 
 # Rota para Deletar um Funcionário (DELETE)
@@ -92,6 +107,22 @@ def validar_login():
     required_fields = ['cpf', 'senha']
     if not all(field in data for field in required_fields):
         return jsonify({"error": f"Campos obrigatórios faltando: {required_fields}"}), 400
-    # chama a função para fazer a requisição à API externa
-    response_data, status_code = Funcoes.make_api_request('post', f"{API_ENDPOINT_FUNCIONARIO}login", data=data)# retorna o json da resposta da API externa
-    return jsonify(response_data), status_code
+
+    # Busca o funcionário pelo CPF na API externa
+    response_data, status_code = Funcoes.make_api_request('get', f"{API_ENDPOINT_FUNCIONARIO}cpf/{data['cpf']}")
+    if status_code != 200 or not response_data or not response_data.get('funcionario'):
+        return jsonify({"error": "CPF ou senha inválidos"}), 401
+
+    funcionario = response_data['funcionario']
+    senha_hash = funcionario.get('senha')
+    if not senha_hash:
+        return jsonify({"error": "Senha não cadastrada"}), 401
+
+    # Verifica a senha usando bcrypt
+    senha_ok = bcrypt.checkpw(data['senha'].encode('utf-8'), senha_hash.encode('utf-8'))
+    if not senha_ok:
+        return jsonify({"error": "CPF ou senha inválidos"}), 401
+
+    # Login válido, pode retornar dados do funcionário (exceto a senha)
+    funcionario.pop('senha', None)
+    return jsonify({"success": True, "funcionario": funcionario}), 200
