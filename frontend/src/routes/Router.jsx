@@ -102,7 +102,17 @@ const AppRoutes = () => {
               <FuncionarioForm />{" "}
             </PrivateRoute>
           }
+        /><Route
+          path="/cliente/:opr/:id"
+          element={
+            <PrivateRoute>
+              {" "}
+              <ClienteForm />{" "}
+            </PrivateRoute>
+          }
         />
+        {/* Rota para editar ou visualizar produto, com opr {view ou edit} e id dinâmico */}
+        <Route path="/produto/:opr/:id" element={<PrivateRoute> <ProdutoForm /> </PrivateRoute>}/>
       </Routes>
     </Suspense>
   );

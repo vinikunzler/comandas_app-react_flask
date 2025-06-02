@@ -11,7 +11,7 @@ PROXY_DEBUG = os.getenv("PROXY_DEBUG", False)
 print(FRONTEND_URL)
 API_SSL_VERIFY = True if os.getenv('API_SSL_VERIFY', True).lower() == 'true' else False
 
-API_URL = os.getenv('API_URL', 'https://127.0.0.1:4443')
+API_URL = os.getenv('API_URL', 'https://127.0.0.1:8000')
 API_USERNAME_TOKEN = os.getenv('API_USERNAME_TOKEN', 'abc')
 API_PASSWORD_TOKEN = os.getenv('API_PASSWORD_TOKEN', 'bolinhas')
 
