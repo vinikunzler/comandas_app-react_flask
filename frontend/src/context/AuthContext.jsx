@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+
 // Criação do contexto
 const AuthContext = createContext();
 // Provedor do contexto
@@ -12,13 +13,24 @@ export const AuthProvider = ({ children }) => {
   // useNavigate é um hook do React Router que permite programaticamente navegar entre rotas
   const navigate = useNavigate();
   // Função para login
-  const login = (username, password) => {
-    if (username === "abc" && password === "bolinhas") {
-      setIsAuthenticated(true);
-      sessionStorage.setItem("loginRealizado", "true");
-      navigate("/home");
-    } else {
-      alert("Usuário ou senha inválidos!");
+  const login = async (username, password) => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_PROXY_BASE_URL}funcionario/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cpf: username, senha: password }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setIsAuthenticated(true);
+        sessionStorage.setItem("loginRealizado", "true");
+        // Se precisar salvar token: sessionStorage.setItem("token", data.token);
+        navigate("/home");
+      } else {
+        alert("Usuário ou senha inválidos!");
+      }
+    } catch (error) {
+      alert("Erro ao conectar à API.");
     }
   };
   // Função para logout

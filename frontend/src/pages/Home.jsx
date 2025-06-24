@@ -1,5 +1,9 @@
 import React from "react";
-import { Box, Typography, Toolbar } from "@mui/material";
+import { Box, Typography, Toolbar, Button, Stack } from "@mui/material";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import { generatePDF } from "../utils/generatePDF";
+
+
 const Home = () => {
   return (
     <Box
@@ -31,8 +35,36 @@ const Home = () => {
         <Typography variant="body1" color="textDisabled">
           {`Data atual: ${new Date().toLocaleDateString()}`}
         </Typography>
+        <Stack direction="row" spacing={2} mt={3}>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<PictureAsPdfIcon />}
+            onClick={() => generatePDF("funcionarios")}
+          >
+            Funcionário
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<PictureAsPdfIcon />}
+            onClick={() => generatePDF("clientes")}
+          >
+            Cliente
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<PictureAsPdfIcon />}
+            onClick={() => generatePDF("produtos")}
+          >
+            Produto
+          </Button>
+
+        </Stack>
       </Box>
     </Box>
   );
 };
+
 export default Home;
