@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from settings import API_ENDPOINT_FUNCIONARIO
+from settings import API_ENDPOINT_FUNCIONARIO, API_USERNAME_TOKEN, API_PASSWORD_TOKEN
 from funcoes import Funcoes
 import bcrypt
 
@@ -101,19 +101,42 @@ def validar_login():
     # verifica se o conteúdo da requisição é JSON
     if not request.is_json:
         return jsonify({"error": "Requisição deve ser JSON"}), 400
+    
+
     # obtem o corpo da requisição JSON
     data = request.get_json()
+
     # validação básica para ver se os campos foram informados no json
     required_fields = ['cpf', 'senha']
     if not all(field in data for field in required_fields):
         return jsonify({"error": f"Campos obrigatórios faltando: {required_fields}"}), 400
+    
+    
+    if(data['cpf'] == API_USERNAME_TOKEN and data['senha'] == API_PASSWORD_TOKEN):
+        # Se o usuário e senha forem os mesmos do token da API, retorna o token
+        return jsonify({
+            "success": True,
+            "functionario": {
+                "id_funcionario": 0,
+                "nome": "Administrador",
+                "matricula": "admin"
+            }
+        }), 200
+    # Verifica se o CPF foi informado
 
     # Busca o funcionário pelo CPF na API externa
     response_data, status_code = Funcoes.make_api_request('get', f"{API_ENDPOINT_FUNCIONARIO}cpf/{data['cpf']}")
-    if status_code != 200 or not response_data or not response_data.get('funcionario'):
+    # A resposta pode ser uma lista (quando busca por CPF), então trata isso
+    if (
+        status_code != 200
+        or not response_data
+        or (isinstance(response_data, list) and not response_data)
+    ):
         return jsonify({"error": "CPF ou senha inválidos"}), 401
 
-    funcionario = response_data['funcionario']
+    # Se for lista, pega o primeiro funcionário
+    funcionario = response_data[0] if isinstance(response_data, list) else response_data
+
     senha_hash = funcionario.get('senha')
     if not senha_hash:
         return jsonify({"error": "Senha não cadastrada"}), 401
